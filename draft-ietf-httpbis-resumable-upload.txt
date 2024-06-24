@@ -5,10 +5,10 @@
 HTTP                                                      M. Kleidl, Ed.
 Internet-Draft                                               Transloadit
 Intended status: Standards Track                           G. Zhang, Ed.
-Expires: 20 December 2024                                     Apple Inc.
+Expires: 26 December 2024                                     Apple Inc.
                                                           L. Pardue, Ed.
                                                               Cloudflare
-                                                            18 June 2024
+                                                            24 June 2024
 
 
                        Resumable Uploads for HTTP
@@ -57,7 +57,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 20 December 2024.
+   This Internet-Draft will expire on 26 December 2024.
 
 Copyright Notice
 
@@ -90,11 +90,12 @@ Table of Contents
      8.1.  Upload-Offset
      8.2.  Upload-Complete
    9.  Redirection
-   10. Security Considerations
-   11. IANA Considerations
-   12. References
-     12.1.  Normative References
-     12.2.  Informative References
+   10. Subsequent Resources
+   11. Security Considerations
+   12. IANA Considerations
+   13. References
+     13.1.  Normative References
+     13.2.  Informative References
    Appendix A.  Informational Response
    Appendix B.  Feature Detection
    Appendix C.  Upload Metadata
@@ -729,7 +730,22 @@ Table of Contents
    request, it MAY apply the redirection directly in an immediate
    subsequent upload append (Section 6).
 
-10.  Security Considerations
+10.  Subsequent Resources
+
+   The server might process the uploaded data and make its results
+   available in another resource during or after the upload.  This
+   subsequent resource is different from the upload resource created by
+   the upload creation request (Section 4).  The subsequent resource
+   does not handle the upload process itself, but instead facilitates
+   further interaction with the uploaded data.  The server MAY indicate
+   the location of this subsequent resource by including the Content-
+   Location header field in informational or final responses generated
+   while creating (Section 4), appending to (Section 6), or retrieving
+   the offset (Section 5) of an upload.  For example, a subsequent
+   resource could allow the client to fetch information extracted from
+   the uploaded data.
+
+11.  Security Considerations
 
    The upload resource URL is the identifier used for modifying the
    upload.  Without further protection of this URL, an attacker may
@@ -763,7 +779,7 @@ Table of Contents
    allowed to have, and restricting the length of time an upload
    resource can exist.
 
-11.  IANA Considerations
+12.  IANA Considerations
 
    IANA is asked to register the following entries in the "Hypertext
    Transfer Protocol (HTTP) Field Name Registry":
@@ -787,9 +803,9 @@ Table of Contents
 
    Specification:  This document
 
-12.  References
+13.  References
 
-12.1.  Normative References
+13.1.  Normative References
 
    [HTTP]     Fielding, R., Ed., Nottingham, M., Ed., and J. Reschke,
               Ed., "HTTP Semantics", STD 97, RFC 9110,
@@ -815,7 +831,7 @@ Table of Contents
               HTTP", RFC 8941, DOI 10.17487/RFC8941, February 2021,
               <https://www.rfc-editor.org/rfc/rfc8941>.
 
-12.2.  Informative References
+13.2.  Informative References
 
    [SLOWLORIS]
               "RSnake" Hansen, R., "Welcome to Slowloris - the low
@@ -990,7 +1006,8 @@ Changes
 
 Since draft-ietf-httpbis-resumable-upload-03
 
-   None yet.
+   *  Add note about Content-Location for referring to subsequent
+      resources.
 
 Since draft-ietf-httpbis-resumable-upload-02
 
