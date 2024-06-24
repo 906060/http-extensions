@@ -89,13 +89,14 @@ Table of Contents
    8.  Header Fields
      8.1.  Upload-Offset
      8.2.  Upload-Complete
-   9.  Redirection
-   10. Subsequent Resources
-   11. Security Considerations
-   12. IANA Considerations
-   13. References
-     13.1.  Normative References
-     13.2.  Informative References
+   9.  Media Type application/partial-upload
+   10. Redirection
+   11. Subsequent Resources
+   12. Security Considerations
+   13. IANA Considerations
+   14. References
+     14.1.  Normative References
+     14.2.  Informative References
    Appendix A.  Informational Response
    Appendix B.  Feature Detection
    Appendix C.  Upload Metadata
@@ -387,6 +388,13 @@ Table of Contents
    technique provides another mechanism to learn the URL, at the cost of
    an additional round-trip before data upload can commence.
 
+   If the server does not receive the entire request content, for
+   example because of canceled requests or dropped connections, it
+   SHOULD append as much of the request content starting at its
+   beginning and without discontinuities as possible.  If the server did
+   not append the entire request content, the upload MUST NOT be
+   considered complete.
+
    The following example shows an upload creation.  The client transfers
    the entire 100 bytes in the first request.  The server generates two
    informational responses to transmit the upload resource's URL and
@@ -569,9 +577,10 @@ Table of Contents
 
    Upload appending is used for resuming an existing upload.
 
-   The request MUST use the PATCH method and be sent to the upload
-   resource.  The Upload-Offset field value (Section 8.1) MUST be set to
-   the resumption offset.
+   The request MUST use the PATCH method with the application/partial-
+   upload media type and MUST be sent to the upload resource.  The
+   Upload-Offset field value (Section 8.1) MUST be set to the resumption
+   offset.
 
    If the end of the request content is not the end of the upload, the
    Upload-Complete field value (Section 8.2) MUST be set to false.
@@ -598,6 +607,17 @@ Table of Contents
    (Section 5), or the end offset of the immediate previous incomplete
    successful transfer, the server MUST respond with a 409 (Conflict)
    status code.
+
+   The server applies the patch document of the application/partial-
+   upload media type by appending the request content to the targeted
+   upload resource.  If the server does not receive the entire patch
+   document, for example because of canceled requests or dropped
+   connections, it SHOULD append as much of the patch document starting
+   at its beginning and without discontinuities as possible.  Appending
+   a continuous section starting at the patch document's beginning
+   constitutes a successful PATCH as defined in Section 2 of [RFC5789].
+   If the server did not receive and apply the entire patch document,
+   the upload MUST NOT be considered complete.
 
    While the request content is being uploaded, the target resource MAY
    send one or more informational responses with a 104 (Upload
@@ -654,6 +674,7 @@ Table of Contents
    Upload-Offset: 100
    Upload-Draft-Interop-Version: 5
    Content-Length: 100
+   Content-Type: application/partial-upload
 
    [content (100 bytes)]
 
@@ -719,7 +740,15 @@ Table of Contents
    The Upload-Complete header field MUST only be used if support by the
    resource is known to the client (Section 4.1).
 
-9.  Redirection
+9.  Media Type application/partial-upload
+
+   The application/partial-upload media type describes a contiguous
+   block of data that should be uploaded to a resource.  There is no
+   minimum block size and the block might be empty.  The start and end
+   of the block might align with the start and end of the file that
+   should be uploaded, but they are not required to be aligned.
+
+10.  Redirection
 
    The 301 (Moved Permanently) and 302 (Found) status codes MUST NOT be
    used in offset retrieval (Section 5) and upload cancellation
@@ -730,7 +759,7 @@ Table of Contents
    request, it MAY apply the redirection directly in an immediate
    subsequent upload append (Section 6).
 
-10.  Subsequent Resources
+11.  Subsequent Resources
 
    The server might process the uploaded data and make its results
    available in another resource during or after the upload.  This
@@ -745,7 +774,7 @@ Table of Contents
    resource could allow the client to fetch information extracted from
    the uploaded data.
 
-11.  Security Considerations
+12.  Security Considerations
 
    The upload resource URL is the identifier used for modifying the
    upload.  Without further protection of this URL, an attacker may
@@ -779,7 +808,7 @@ Table of Contents
    allowed to have, and restricting the length of time an upload
    resource can exist.
 
-12.  IANA Considerations
+13.  IANA Considerations
 
    IANA is asked to register the following entries in the "Hypertext
    Transfer Protocol (HTTP) Field Name Registry":
@@ -803,9 +832,57 @@ Table of Contents
 
    Specification:  This document
 
-13.  References
+   IANA is asked to register the following entry in the "Media Types"
+   registry:
 
-13.1.  Normative References
+   Type name:  application
+
+   Subtype name:  partial-upload
+
+   Required parameters:  N/A
+
+   Optional parameters:  N/A
+
+   Encoding considerations:  binary
+
+   Security considerations:  see Section 12 of this document
+
+   Interoperability considerations:  N/A
+
+   Published specification:  This document
+
+   Applications that use this media type:  Applications that transfer
+      files over unreliable networks or want pause- and resumable
+      uploads.
+
+   Fragment identifier considerations:  N/A
+
+   Additional information:
+
+   *  Deprecated alias names for this type: N/A
+
+   *  Magic number(s): N/A
+
+   *  File extension(s): N/A
+
+   *  Macintosh file type code(s): N/A
+
+   *  Windows Clipboard Name: N/A
+
+   Person and email address to contact for further information:  See the
+      Authors' Addresses section of this document.
+
+   Intended usage:  COMMON
+
+   Restrictions on usage:  N/A
+
+   Author:  See the Authors' Addresses section of this document.
+
+   Change controller:  IETF
+
+14.  References
+
+14.1.  Normative References
 
    [HTTP]     Fielding, R., Ed., Nottingham, M., Ed., and J. Reschke,
               Ed., "HTTP Semantics", STD 97, RFC 9110,
@@ -816,6 +893,10 @@ Table of Contents
               Requirement Levels", BCP 14, RFC 2119,
               DOI 10.17487/RFC2119, March 1997,
               <https://www.rfc-editor.org/rfc/rfc2119>.
+
+   [RFC5789]  Dusseault, L. and J. Snell, "PATCH Method for HTTP",
+              RFC 5789, DOI 10.17487/RFC5789, March 2010,
+              <https://www.rfc-editor.org/rfc/rfc5789>.
 
    [RFC6266]  Reschke, J., "Use of the Content-Disposition Header Field
               in the Hypertext Transfer Protocol (HTTP)", RFC 6266,
@@ -831,7 +912,7 @@ Table of Contents
               HTTP", RFC 8941, DOI 10.17487/RFC8941, February 2021,
               <https://www.rfc-editor.org/rfc/rfc8941>.
 
-13.2.  Informative References
+14.2.  Informative References
 
    [SLOWLORIS]
               "RSnake" Hansen, R., "Welcome to Slowloris - the low
@@ -1008,6 +1089,8 @@ Since draft-ietf-httpbis-resumable-upload-03
 
    *  Add note about Content-Location for referring to subsequent
       resources.
+
+   *  Require application/partial-upload for appending to uploads.
 
 Since draft-ietf-httpbis-resumable-upload-02
 
