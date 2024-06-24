@@ -388,6 +388,13 @@ Table of Contents
    technique provides another mechanism to learn the URL, at the cost of
    an additional round-trip before data upload can commence.
 
+   If the server does not receive the entire request content, for
+   example because of canceled requests or dropped connections, it
+   SHOULD append as much of the request content starting at its
+   beginning and without discontinuities as possible.  If the server did
+   not append the entire request content, the upload MUST NOT be
+   considered complete.
+
    The following example shows an upload creation.  The client transfers
    the entire 100 bytes in the first request.  The server generates two
    informational responses to transmit the upload resource's URL and
@@ -605,8 +612,12 @@ Table of Contents
    upload media type by appending the request content to the targeted
    upload resource.  If the server does not receive the entire patch
    document, for example because of canceled requests or dropped
-   connections, it SHOULD append as much of the patch document as was
-   received.
+   connections, it SHOULD append as much of the patch document starting
+   at its beginning and without discontinuities as possible.  Appending
+   a continuous section starting at the patch document's beginning
+   constitutes a successful PATCH as defined in Section 2 of [RFC5789].
+   If the server did not receive and apply the entire patch document,
+   the upload MUST NOT be considered complete.
 
    While the request content is being uploaded, the target resource MAY
    send one or more informational responses with a 104 (Upload
@@ -882,6 +893,10 @@ Table of Contents
               Requirement Levels", BCP 14, RFC 2119,
               DOI 10.17487/RFC2119, March 1997,
               <https://www.rfc-editor.org/rfc/rfc2119>.
+
+   [RFC5789]  Dusseault, L. and J. Snell, "PATCH Method for HTTP",
+              RFC 5789, DOI 10.17487/RFC5789, March 2010,
+              <https://www.rfc-editor.org/rfc/rfc5789>.
 
    [RFC6266]  Reschke, J., "Use of the Content-Disposition Header Field
               in the Hypertext Transfer Protocol (HTTP)", RFC 6266,
