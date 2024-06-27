@@ -609,8 +609,9 @@ Table of Contents
    match the offset provided by the immediate previous offset retrieval
    (Section 5), or the end offset of the immediate previous incomplete
    successful transfer, the server MUST respond with a 409 (Conflict)
-   status code.  The server MAY use the corresponding problem type
-   (Section 10.1) for the response.
+   status code.  The server MAY use the problem type [PROBLEM] of
+   "https://iana.org/assignments/http-problem-types#mismatching-upload-
+   offset" in the response; see Section 10.1.
 
    The server applies the patch document of the application/partial-
    upload media type by appending the request content to the targeted
@@ -756,8 +757,8 @@ Table of Contents
 
 10.1.  Mismatching Offset
 
-   This section defines the https://iana.org/assignments/http-problem-
-   types#mismatching-upload-offset problem type [PROBLEM].  An upload
+   This section defines the "https://iana.org/assignments/http-problem-
+   types#mismatching-upload-offset" problem type [PROBLEM].  An upload
    resource MAY use this problem type in a response to an upload append
    request (Section 6) to indicate that the Upload-Offset header field
    in the request does not match the upload resource's offset.  The
@@ -781,8 +782,8 @@ Table of Contents
 10.2.  Completed Upload
 
    This section defines the https://iana.org/assignments/http-problem-
-   types#completed-upload problem type [PROBLEM].  An upload resource
-   MAY use this problem type in a response to an upload append request
+   types#completed-upload problem type [PROBLEM].  An server MAY use
+   this problem type in a response to an upload append request
    (Section 6) to indicate that the upload has already been completed
    and cannot be modified.
 
