@@ -1120,6 +1120,8 @@ Since draft-ietf-httpbis-resumable-upload-03
 
    *  Require application/partial-upload for appending to uploads.
 
+   *  Explain handling of content and transfer codings.
+
 Since draft-ietf-httpbis-resumable-upload-02
 
    *  Add upload progress notifications via informational responses.
