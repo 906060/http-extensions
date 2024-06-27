@@ -1593,7 +1593,7 @@ HTTP/1.1 201 Created
 Location: https://example.com/upload/b530ce8ff
 Upload-Complete: ?0
 Upload-Offset: 25
-Upload-Limit: bytes=1000000000
+Upload-Limit: max-size=1000000000
 </pre><a href="#section-4-17" class="pilcrow">¶</a>
 </div>
 <p id="section-4-18">If the client received an informational response with the upload URL in the Location field value, it <span class="bcp14">MAY</span> automatically attempt upload resumption when the connection is terminated unexpectedly, or if a 5xx status is received. The client <span class="bcp14">SHOULD NOT</span> automatically retry if it receives a 4xx status code.<a href="#section-4-18" class="pilcrow">¶</a></p>
@@ -1751,9 +1751,22 @@ HTTP/1.1 204 No Content
 <p id="section-8.2-1">The <code>Upload-Limit</code> response header field indicates limits applying the upload resource. The <code>Upload-Limit</code> field value is a Dictionary. The following limits are defined:<a href="#section-8.2-1" class="pilcrow">¶</a></p>
 <ul class="normal">
 <li class="normal" id="section-8.2-2.1">
-            <p id="section-8.2-2.1.1">The <code>bytes</code> key specifies a maximum size that an upload resource is allowed to reach, counted in bytes. The value is an Integer.<a href="#section-8.2-2.1.1" class="pilcrow">¶</a></p>
+            <p id="section-8.2-2.1.1">The <code>max-size</code> key specifies a maximum size that an upload resource is allowed to reach, counted in bytes. The value is an Integer.<a href="#section-8.2-2.1.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-8.2-2.2">
+            <p id="section-8.2-2.2.1">The <code>min-size</code> key specifies a minimum size that for a resumable upload counted in bytes. The server will not create an upload resource if the client indicates that the uploaded data is smaller than the minimum size. The value is an Integer.<a href="#section-8.2-2.2.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-8.2-2.3">
+            <p id="section-8.2-2.3.1">The <code>max-append-size</code> key specifies a maximum size counted in bytes for the request content in a single upload append request (<a href="#upload-appending" class="auto internal xref">Section 6</a>). The server <span class="bcp14">MAY</span> reject request exceeding this limit and a client <span class="bcp14">SHOULD NOT</span> send larger upload append requests. The value is an Integer.<a href="#section-8.2-2.3.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-8.2-2.4">
+            <p id="section-8.2-2.4.1">The <code>min-append-size</code> key specifies a minimum size counted in bytes for the request content in a single upload append request (<a href="#upload-appending" class="auto internal xref">Section 6</a>). The server <span class="bcp14">MAY</span> reject request below this limit and a client <span class="bcp14">SHOULD NOT</span> send smaller upload append requests. The value is an Integer.<a href="#section-8.2-2.4.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="section-8.2-2.5">
+            <p id="section-8.2-2.5.1">The <code>expires</code> key specifies the remaining lifetime of the upload resource in seconds counted from the generation of the response by the server. After the resource's lifetime is reached, the server <span class="bcp14">MAY</span> make the upload resource inaccessible and a client <span class="bcp14">SHOULD NOT</span> attempt to access the upload resource. The lifetime <span class="bcp14">MAY</span> be extended but <span class="bcp14">SHOULD NOT</span> be reduced once the upload resource is created. The value is an Integer.<a href="#section-8.2-2.5.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
+<p id="section-8.2-3">When parsing this header field, unrecognized keys <span class="bcp14">MUST</span> be ignored and <span class="bcp14">MUST NOT</span> fail the parsing to facilitate the addition of new limits in the future.<a href="#section-8.2-3" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="upload-complete">
