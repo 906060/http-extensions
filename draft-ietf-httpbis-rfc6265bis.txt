@@ -6,8 +6,8 @@ HTTP                                                     S. Bingler, Ed.
 Internet-Draft                                              M. West, Ed.
 Obsoletes: 6265 (if approved)                                 Google LLC
 Intended status: Standards Track                        J. Wilander, Ed.
-Expires: 26 December 2024                                     Apple, Inc
-                                                            24 June 2024
+Expires: 29 December 2024                                     Apple, Inc
+                                                            27 June 2024
 
 
                 Cookies: HTTP State Management Mechanism
@@ -53,7 +53,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 26 December 2024.
+   This Internet-Draft will expire on 29 December 2024.
 
 Copyright Notice
 
@@ -822,9 +822,27 @@ Table of Contents
    cookie        = cookie-string
    cookie-string = cookie-pair *( ";" SP cookie-pair )
 
+   While Section 5.4 of [HTTP] does not define a length limit for header
+   fields it is likely that the web server's implementation does impose
+   a limit; many popular implementations have default limits of 8K.
+   Servers SHOULD avoid setting a large number of large cookies such
+   that the final cookie-string would exceed their header field limit.
+   Not doing so could result in requests to the server failing.
+
    Servers MUST be tolerant of multiple cookie headers.  For example, an
-   HTTP/2 [RFC9113] or HTTP/3 [RFC9114] connection might split a cookie
-   header to improve compression.
+   HTTP/2 [RFC9113] or HTTP/3 [RFC9114] client or intermediary might
+   split a cookie header to improve compression.  Servers are free to
+   determine what form this tolerance takes.  For example, the server
+   could process each cookie header individually or the server could
+   concatenate all the cookie headers into one and then process that
+   final, single, header.  The server should be mindful of any header
+   field limits when deciding which approach to take.
+
+   Note: Since intermediaries can modify cookie headers they should also
+   be mindful of common server header field limits in order to avoid
+   sending servers headers that they cannot process.  For example,
+   concatenating multiple cookie headers into a single header might
+   exceed a server's size limit.
 
 4.2.2.  Semantics
 
@@ -1849,6 +1867,13 @@ Table of Contents
    uri, the retrieval's same-site status is computed for the HTTP
    request as defined in Section 5.2, and the retrieval's type is
    "HTTP".
+
+   Note: Previous versions of this specification required that only one
+   Cookie header field be sent in requests.  This is no longer a
+   requirement.  While this specification requires that a single cookie-
+   string be produced, some user agents may split that string across
+   multiple cookie header fields.  For examples, see Section 8.2.3 of
+   [RFC9113] and Section 4.2.1 of [RFC9114].
 
 5.8.2.  Non-HTTP APIs
 
@@ -3064,6 +3089,10 @@ A.14.  draft-ietf-httpbis-rfc6265bis-14
    *  Update IANA Considerations https://github.com/httpwg/http-
       extensions/pull/2793 (https://github.com/httpwg/http-extensions/
       pull/2793)
+
+   *  Add multiple cookie header tolerance suggestions & length limit
+      warnings https://github.com/httpwg/http-extensions/pull/2804
+      (https://github.com/httpwg/http-extensions/pull/2804)
 
 Acknowledgements
 
