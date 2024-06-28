@@ -1036,7 +1036,7 @@ svg :is([fill="white"], [fill^="#fff"]) {
 </tr></thead>
 <tfoot><tr>
 <td class="left">Bingler, et al.</td>
-<td class="center">Expires 29 December 2024</td>
+<td class="center">Expires 30 December 2024</td>
 <td class="right">[Page]</td>
 </tr></tfoot>
 </table>
@@ -1052,12 +1052,12 @@ svg :is([fill="white"], [fill^="#fff"]) {
 <a href="https://www.rfc-editor.org/rfc/rfc6265" class="eref">6265</a> (if approved)</dd>
 <dt class="label-published">Published:</dt>
 <dd class="published">
-<time datetime="2024-06-27" class="published">27 June 2024</time>
+<time datetime="2024-06-28" class="published">28 June 2024</time>
     </dd>
 <dt class="label-intended-status">Intended Status:</dt>
 <dd class="intended-status">Standards Track</dd>
 <dt class="label-expires">Expires:</dt>
-<dd class="expires"><time datetime="2024-12-29">29 December 2024</time></dd>
+<dd class="expires"><time datetime="2024-12-30">30 December 2024</time></dd>
 <dt class="label-authors">Authors:</dt>
 <dd class="authors">
 <div class="author">
@@ -1123,7 +1123,7 @@ header fields are widely used on the Internet. This document obsoletes RFC
         time. It is inappropriate to use Internet-Drafts as reference
         material or to cite them other than as "work in progress."<a href="#section-boilerplate.1-3" class="pilcrow">¶</a></p>
 <p id="section-boilerplate.1-4">
-        This Internet-Draft will expire on 29 December 2024.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
+        This Internet-Draft will expire on 30 December 2024.<a href="#section-boilerplate.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="copyright">
@@ -2147,7 +2147,7 @@ Set-Cookie: __Host-SID=12345; Secure; Path=/
         <h3 id="name-cookie">
 <a href="#section-4.2" class="section-number selfRef">4.2. </a><a href="#name-cookie" class="section-name selfRef">Cookie</a>
         </h3>
-<div id="syntax">
+<div id="server-syntax">
 <section id="section-4.2.1">
           <h4 id="name-syntax-2">
 <a href="#section-4.2.1" class="section-number selfRef">4.2.1. </a><a href="#name-syntax-2" class="section-name selfRef">Syntax</a>
@@ -2162,9 +2162,23 @@ cookie        = cookie-string
 cookie-string = cookie-pair *( ";" SP cookie-pair )
 </pre><a href="#section-4.2.1-2" class="pilcrow">¶</a>
 </div>
-<p id="section-4.2.1-3">Servers MUST be tolerant of multiple cookie headers. For example, an HTTP/2
-<span>[<a href="#RFC9113" class="cite xref">RFC9113</a>]</span> or HTTP/3 <span>[<a href="#RFC9114" class="cite xref">RFC9114</a>]</span> connection might split a cookie header to
-improve compression.<a href="#section-4.2.1-3" class="pilcrow">¶</a></p>
+<p id="section-4.2.1-3">While <span><a href="https://rfc-editor.org/rfc/rfc9110#section-5.4" class="relref">Section 5.4</a> of [<a href="#RFC9110" class="cite xref">HTTP</a>]</span> does not define a length limit for header
+fields it is likely that the web server's implementation does impose a limit;
+many popular implementations have default limits of 8K. Servers SHOULD avoid
+setting a large number of large cookies such that the final cookie-string
+would exceed their header field limit. Not doing so could result in requests
+to the server failing.<a href="#section-4.2.1-3" class="pilcrow">¶</a></p>
+<p id="section-4.2.1-4">Servers MUST be tolerant of multiple cookie headers. For example, an HTTP/2
+<span>[<a href="#RFC9113" class="cite xref">RFC9113</a>]</span> or HTTP/3 <span>[<a href="#RFC9114" class="cite xref">RFC9114</a>]</span> client or intermediary might split a cookie
+header to improve compression. Servers are free to determine what form this
+tolerance takes. For example, the server could process each cookie header
+individually or the server could concatenate all the cookie headers into one
+and then process that final, single, header. The server should be mindful of
+any header field limits when deciding which approach to take.<a href="#section-4.2.1-4" class="pilcrow">¶</a></p>
+<p id="section-4.2.1-5">Note: Since intermediaries can modify cookie headers they should also be
+mindful of common server header field limits in order to avoid sending servers
+headers that they cannot process. For example, concatenating multiple cookie
+headers into a single header might exceed a server's size limit.<a href="#section-4.2.1-5" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="semantics">
@@ -3472,6 +3486,11 @@ the cookie-string following the algorithm defined in <a href="#retrieval-algorit
 where the retrieval's URI is the request-uri, the retrieval's same-site status
 is computed for the HTTP request as defined in <a href="#same-site-requests" class="auto internal xref">Section 5.2</a>, and the
 retrieval's type is "HTTP".<a href="#section-5.8.1-3" class="pilcrow">¶</a></p>
+<p id="section-5.8.1-4">Note: Previous versions of this specification required that only one Cookie
+header field be sent in requests. This is no longer a requirement. While this
+specification requires that a single cookie-string be produced, some user agents
+may split that string across multiple cookie header fields. For examples, see
+<span><a href="https://rfc-editor.org/rfc/rfc9113#section-8.2.3" class="relref">Section 8.2.3</a> of [<a href="#RFC9113" class="cite xref">RFC9113</a>]</span> and <span><a href="https://rfc-editor.org/rfc/rfc9114#section-4.2.1" class="relref">Section 4.2.1</a> of [<a href="#RFC9114" class="cite xref">RFC9114</a>]</span>.<a href="#section-5.8.1-4" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="non-http">
@@ -4901,6 +4920,10 @@ user interface elements:
           <li class="normal" id="appendix-A.14-1.6">
             <p id="appendix-A.14-1.6.1">Update IANA Considerations
 <a href="https://github.com/httpwg/http-extensions/pull/2793">https://github.com/httpwg/http-extensions/pull/2793</a><a href="#appendix-A.14-1.6.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="appendix-A.14-1.7">
+            <p id="appendix-A.14-1.7.1">Add multiple cookie header tolerance suggestions &amp; length limit warnings
+<a href="https://github.com/httpwg/http-extensions/pull/2804">https://github.com/httpwg/http-extensions/pull/2804</a><a href="#appendix-A.14-1.7.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
 </section>

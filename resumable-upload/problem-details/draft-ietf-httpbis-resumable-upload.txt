@@ -5,10 +5,10 @@
 HTTP                                                      M. Kleidl, Ed.
 Internet-Draft                                               Transloadit
 Intended status: Standards Track                           G. Zhang, Ed.
-Expires: 29 December 2024                                     Apple Inc.
+Expires: 30 December 2024                                     Apple Inc.
                                                           L. Pardue, Ed.
                                                               Cloudflare
-                                                            27 June 2024
+                                                            28 June 2024
 
 
                        Resumable Uploads for HTTP
@@ -57,7 +57,7 @@ Status of This Memo
    time.  It is inappropriate to use Internet-Drafts as reference
    material or to cite them other than as "work in progress."
 
-   This Internet-Draft will expire on 29 December 2024.
+   This Internet-Draft will expire on 30 December 2024.
 
 Copyright Notice
 
@@ -94,12 +94,13 @@ Table of Contents
      10.1.  Mismatching Offset
      10.2.  Completed Upload
    11. Redirection
-   12. Subsequent Resources
-   13. Security Considerations
-   14. IANA Considerations
-   15. References
-     15.1.  Normative References
-     15.2.  Informative References
+   12. Transfer and Content Codings
+   13. Subsequent Resources
+   14. Security Considerations
+   15. IANA Considerations
+   16. References
+     16.1.  Normative References
+     16.2.  Informative References
    Appendix A.  Informational Response
    Appendix B.  Feature Detection
    Appendix C.  Upload Metadata
@@ -452,7 +453,12 @@ Table of Contents
    in the request that starts an upload.  Servers MAY interpret this
    metadata or MAY ignore it.  The Content-Type header field
    (Section 8.3 of [HTTP]) can be used to indicate the media type of the
-   file.  The Content-Disposition header field ([RFC6266]) can be used
+   file.  The content coding of the representation is specified using
+   the Content-Encoding header field and is retained throughout the
+   entire upload.  When resuming an interrupted upload, the same content
+   coding is used for appending to the upload, producing a
+   representation of the upload resource with one consistent content
+   coding.  The Content-Disposition header field ([RFC6266]) can be used
    to transmit a filename; if included, the parameters SHOULD be either
    filename, filename* or boundary.
 
@@ -589,8 +595,13 @@ Table of Contents
    Upload-Complete field value (Section 8.2) MUST be set to false.
 
    The server SHOULD respect representation metadata received during
-   creation (Section 4) and ignore any representation metadata received
-   from appending.
+   creation (Section 4).  An upload append request continues uploading
+   the same representation as used in the upload creation (Section 4)
+   and thus uses the same content coding, if one was applied.  For
+   example, if the initial upload creation included the Content-
+   Encoding: gzip header field, the upload append request resumes the
+   transfer of the gzipped data without indicating again that the gzip
+   coding is applied.
 
    If the server does not consider the upload associated with the upload
    resource active, it MUST respond with a 404 (Not Found) status code.
@@ -811,7 +822,20 @@ Table of Contents
    request, it MAY apply the redirection directly in an immediate
    subsequent upload append (Section 6).
 
-12.  Subsequent Resources
+12.  Transfer and Content Codings
+
+   A message might have a content coding, indicated by the Content-
+   Encoding header field, and/or a transfer coding, indicated by the
+   Transfer-Encoding header field (Section 6.1 of [HTTP/1.1]), applied,
+   which modify the representation of uploaded data in a message.  For
+   correct interoperability, the client and server must share the same
+   logic when counting bytes for the upload offset.  From the client's
+   perspective, the offset is counted after content coding but before
+   transfer coding is applied.  From the server's perspective, the
+   offset is counted after the content's transfer coding is reversed but
+   before the content coding is reversed.
+
+13.  Subsequent Resources
 
    The server might process the uploaded data and make its results
    available in another resource during or after the upload.  This
@@ -826,7 +850,7 @@ Table of Contents
    resource could allow the client to fetch information extracted from
    the uploaded data.
 
-13.  Security Considerations
+14.  Security Considerations
 
    The upload resource URL is the identifier used for modifying the
    upload.  Without further protection of this URL, an attacker may
@@ -860,7 +884,7 @@ Table of Contents
    allowed to have, and restricting the length of time an upload
    resource can exist.
 
-14.  IANA Considerations
+15.  IANA Considerations
 
    IANA is asked to register the following entries in the "Hypertext
    Transfer Protocol (HTTP) Field Name Registry":
@@ -897,7 +921,7 @@ Table of Contents
 
    Encoding considerations:  binary
 
-   Security considerations:  see Section 13 of this document
+   Security considerations:  see Section 14 of this document
 
    Interoperability considerations:  N/A
 
@@ -956,14 +980,18 @@ Table of Contents
 
       This document
 
-15.  References
+16.  References
 
-15.1.  Normative References
+16.1.  Normative References
 
    [HTTP]     Fielding, R., Ed., Nottingham, M., Ed., and J. Reschke,
               Ed., "HTTP Semantics", STD 97, RFC 9110,
               DOI 10.17487/RFC9110, June 2022,
               <https://www.rfc-editor.org/rfc/rfc9110>.
+
+   [HTTP/1.1] Fielding, R., Ed., Nottingham, M., Ed., and J. Reschke,
+              Ed., "HTTP/1.1", STD 99, RFC 9112, DOI 10.17487/RFC9112,
+              June 2022, <https://www.rfc-editor.org/rfc/rfc9112>.
 
    [PROBLEM]  Nottingham, M., Wilde, E., and S. Dalal, "Problem Details
               for HTTP APIs", RFC 9457, DOI 10.17487/RFC9457, July 2023,
@@ -992,7 +1020,7 @@ Table of Contents
               HTTP", RFC 8941, DOI 10.17487/RFC8941, February 2021,
               <https://www.rfc-editor.org/rfc/rfc8941>.
 
-15.2.  Informative References
+16.2.  Informative References
 
    [SLOWLORIS]
               "RSnake" Hansen, R., "Welcome to Slowloris - the low
@@ -1171,6 +1199,8 @@ Since draft-ietf-httpbis-resumable-upload-03
       resources.
 
    *  Require application/partial-upload for appending to uploads.
+
+   *  Explain handling of content and transfer codings.
 
 Since draft-ietf-httpbis-resumable-upload-02
 
