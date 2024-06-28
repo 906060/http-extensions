@@ -1687,12 +1687,13 @@ Cache-Control: no-store
 <p id="section-6-8">The server applies the patch document of the <code>application/partial-upload</code> media type by appending the request content to the targeted upload resource. If the server does not receive the entire patch document, for example because of canceled requests or dropped connections, it <span class="bcp14">SHOULD</span> append as much of the patch document starting at its beginning and without discontinuities as possible. Appending a continuous section starting at the patch document's beginning constitutes a successful PATCH as defined in <span><a href="https://rfc-editor.org/rfc/rfc5789#section-2" class="relref">Section 2</a> of [<a href="#RFC5789" class="cite xref">RFC5789</a>]</span>. If the server did not receive and apply the entire patch document, the upload <span class="bcp14">MUST NOT</span> be considered complete.<a href="#section-6-8" class="pilcrow">¶</a></p>
 <p id="section-6-9">While the request content is being uploaded, the target resource <span class="bcp14">MAY</span> send one or more informational responses with a <code>104 (Upload Resumption Supported)</code> status code to the client. These informational responses <span class="bcp14">MUST NOT</span> contain the <code>Location</code> header field. They <span class="bcp14">MAY</span> include the <code>Upload-Offset</code> header field with the current upload offset as the value to inform the client about the upload progress. The same restrictions on the <code>Upload-Offset</code> header field in informational responses from the upload creation (<a href="#upload-creation" class="auto internal xref">Section 4</a>) apply.<a href="#section-6-9" class="pilcrow">¶</a></p>
 <p id="section-6-10">The server <span class="bcp14">MUST</span> send the <code>Upload-Offset</code> header field in the response if it considers the upload active, either when the response is a success (e.g. <code>201 (Created)</code>), or when the response is a failure (e.g. <code>409 (Conflict)</code>). The value <span class="bcp14">MUST</span> be equal to the end offset of the entire upload, or the begin offset of the next chunk if the upload is still incomplete. The client <span class="bcp14">SHOULD</span> consider the upload failed if the status code indicates a success but the offset indicated by the <code>Upload-Offset</code> field value does not equal the total of begin offset plus the number of bytes uploaded in the request.<a href="#section-6-10" class="pilcrow">¶</a></p>
-<p id="section-6-11">If the request completes successfully and the entire upload is complete, the server <span class="bcp14">MUST</span> acknowledge it by responding with a 2xx (Successful) status code. Servers are <span class="bcp14">RECOMMENDED</span> to use a <code>201 (Created)</code> response if not otherwise specified. The response <span class="bcp14">MUST NOT</span> include the <code>Upload-Complete</code> header field with the value set to false.<a href="#section-6-11" class="pilcrow">¶</a></p>
-<p id="section-6-12">If the request completes successfully but the entire upload is not yet complete indicated by the <code>Upload-Complete</code> field value set to false, the server <span class="bcp14">MUST</span> acknowledge it by responding with a <code>201 (Created)</code> status code and the <code>Upload-Complete</code> field value set to true.<a href="#section-6-12" class="pilcrow">¶</a></p>
-<p id="section-6-13">If the request includes the <code>Upload-Complete</code> field value set to true and a valid <code>Content-Length</code> header field, the client attempts to upload the remaining resource in one request. In this case, the upload's final size is the sum of the upload's offset and the <code>Content-Length</code> header field. If the server does not have a record of the upload's final size from creation or the previous append, the server <span class="bcp14">MUST</span> record the upload's final size to ensure its consistency. If the server does have a previous record, that value <span class="bcp14">MUST</span> match the upload's final size. If they do not match, the server <span class="bcp14">MUST</span> reject the request with a <code>400 (Bad Request)</code> status code.<a href="#section-6-13" class="pilcrow">¶</a></p>
-<p id="section-6-14">The request content <span class="bcp14">MAY</span> be empty. If the <code>Upload-Complete</code> field is then set to true, the client wants to complete the upload without appending additional data.<a href="#section-6-14" class="pilcrow">¶</a></p>
-<p id="section-6-15">The following example shows an upload append. The client transfers the next 100 bytes at an offset of 100 and does not indicate that the upload is then completed. The server acknowledges the new offset:<a href="#section-6-15" class="pilcrow">¶</a></p>
-<div class="lang-http-message sourcecode" id="section-6-16">
+<p id="section-6-11">If the upload is already complete, the server <span class="bcp14">MUST NOT</span> modify the upload resource and <span class="bcp14">MUST</span> respond with a <code>400 (Bad Request)</code> status code. The server <span class="bcp14">MAY</span> use the problem type <span>[<a href="#PROBLEM" class="cite xref">PROBLEM</a>]</span> of "https://iana.org/assignments/http-problem-types#completed-upload" in the response; see <a href="#completed-upload" class="auto internal xref">Section 10.2</a>.<a href="#section-6-11" class="pilcrow">¶</a></p>
+<p id="section-6-12">If the request completes successfully and the entire upload is complete, the server <span class="bcp14">MUST</span> acknowledge it by responding with a 2xx (Successful) status code. Servers are <span class="bcp14">RECOMMENDED</span> to use a <code>201 (Created)</code> response if not otherwise specified. The response <span class="bcp14">MUST NOT</span> include the <code>Upload-Complete</code> header field with the value set to false.<a href="#section-6-12" class="pilcrow">¶</a></p>
+<p id="section-6-13">If the request completes successfully but the entire upload is not yet complete indicated by the <code>Upload-Complete</code> field value set to false, the server <span class="bcp14">MUST</span> acknowledge it by responding with a <code>201 (Created)</code> status code and the <code>Upload-Complete</code> field value set to true.<a href="#section-6-13" class="pilcrow">¶</a></p>
+<p id="section-6-14">If the request includes the <code>Upload-Complete</code> field value set to true and a valid <code>Content-Length</code> header field, the client attempts to upload the remaining resource in one request. In this case, the upload's final size is the sum of the upload's offset and the <code>Content-Length</code> header field. If the server does not have a record of the upload's final size from creation or the previous append, the server <span class="bcp14">MUST</span> record the upload's final size to ensure its consistency. If the server does have a previous record, that value <span class="bcp14">MUST</span> match the upload's final size. If they do not match, the server <span class="bcp14">MUST</span> reject the request with a <code>400 (Bad Request)</code> status code.<a href="#section-6-14" class="pilcrow">¶</a></p>
+<p id="section-6-15">The request content <span class="bcp14">MAY</span> be empty. If the <code>Upload-Complete</code> field is then set to true, the client wants to complete the upload without appending additional data.<a href="#section-6-15" class="pilcrow">¶</a></p>
+<p id="section-6-16">The following example shows an upload append. The client transfers the next 100 bytes at an offset of 100 and does not indicate that the upload is then completed. The server acknowledges the new offset:<a href="#section-6-16" class="pilcrow">¶</a></p>
+<div class="lang-http-message sourcecode" id="section-6-17">
 <pre>
 PATCH /upload/b530ce8ff HTTP/1.1
 Host: example.com
@@ -1702,15 +1703,15 @@ Content-Length: 100
 Content-Type: application/partial-upload
 
 [content (100 bytes)]
-</pre><a href="#section-6-16" class="pilcrow">¶</a>
+</pre><a href="#section-6-17" class="pilcrow">¶</a>
 </div>
-<div class="lang-http-message sourcecode" id="section-6-17">
+<div class="lang-http-message sourcecode" id="section-6-18">
 <pre>
 HTTP/1.1 201 Created
 Upload-Offset: 200
-</pre><a href="#section-6-17" class="pilcrow">¶</a>
+</pre><a href="#section-6-18" class="pilcrow">¶</a>
 </div>
-<p id="section-6-18">The client <span class="bcp14">MAY</span> automatically attempt upload resumption when the connection is terminated unexpectedly, or if a 5xx (Server Error) status code is received. The client <span class="bcp14">SHOULD NOT</span> automatically retry if a 4xx (Client Error) status code is received.<a href="#section-6-18" class="pilcrow">¶</a></p>
+<p id="section-6-19">The client <span class="bcp14">MAY</span> automatically attempt upload resumption when the connection is terminated unexpectedly, or if a 5xx (Server Error) status code is received. The client <span class="bcp14">SHOULD NOT</span> automatically retry if a 4xx (Client Error) status code is received.<a href="#section-6-19" class="pilcrow">¶</a></p>
 </section>
 </div>
 <div id="upload-cancellation">
@@ -2210,6 +2211,9 @@ Reference:<a href="#section-15-13.6.1" class="pilcrow">¶</a></p>
 </li>
           <li class="normal" id="appendix-F.1-1.4">
             <p id="appendix-F.1-1.4.1">Add problem types for mismatching offsets and completed uploads.<a href="#appendix-F.1-1.4.1" class="pilcrow">¶</a></p>
+</li>
+          <li class="normal" id="appendix-F.1-1.5">
+            <p id="appendix-F.1-1.5.1">Clarify that completed uploads must not be appended to.<a href="#appendix-F.1-1.5.1" class="pilcrow">¶</a></p>
 </li>
         </ul>
 </section>

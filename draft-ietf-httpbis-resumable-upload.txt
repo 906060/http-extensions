@@ -654,6 +654,12 @@ Table of Contents
    Upload-Offset field value does not equal the total of begin offset
    plus the number of bytes uploaded in the request.
 
+   If the upload is already complete, the server MUST NOT modify the
+   upload resource and MUST respond with a 400 (Bad Request) status
+   code.  The server MAY use the problem type [PROBLEM] of
+   "https://iana.org/assignments/http-problem-types#completed-upload" in
+   the response; see Section 10.2.
+
    If the request completes successfully and the entire upload is
    complete, the server MUST acknowledge it by responding with a 2xx
    (Successful) status code.  Servers are RECOMMENDED to use a 201
@@ -1203,6 +1209,8 @@ Since draft-ietf-httpbis-resumable-upload-03
    *  Explain handling of content and transfer codings.
 
    *  Add problem types for mismatching offsets and completed uploads.
+
+   *  Clarify that completed uploads must not be appended to.
 
 Since draft-ietf-httpbis-resumable-upload-02
 
