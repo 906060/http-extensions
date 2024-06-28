@@ -1202,6 +1202,8 @@ Since draft-ietf-httpbis-resumable-upload-03
 
    *  Explain handling of content and transfer codings.
 
+   *  Add problem types for mismatching offsets and completed uploads.
+
 Since draft-ietf-httpbis-resumable-upload-02
 
    *  Add upload progress notifications via informational responses.
