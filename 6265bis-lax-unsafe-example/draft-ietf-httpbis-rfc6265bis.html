@@ -4170,8 +4170,8 @@ cause the cookie to be excluded due to the unsafe HTTP request method,
 resulting in an unrecoverable failure of the whole login flow.<a href="#section-8.8.6-2" class="pilcrow">¶</a></p>
 <p id="section-8.8.6-3">The "Lax-allowing-unsafe" enforcement mode described in <a href="#lax-allowing-unsafe" class="auto internal xref">Section 5.6.7.2</a>
 retains some of the protections of "Lax" enforcement (as compared to "None")
-while still allowing cookies to be sent cross-site with unsafe top-level
-requests.<a href="#section-8.8.6-3" class="pilcrow">¶</a></p>
+while still allowing recently created cookies to be sent cross-site with unsafe
+top-level requests.<a href="#section-8.8.6-3" class="pilcrow">¶</a></p>
 <p id="section-8.8.6-4">As a more permissive variant of "Lax" mode, "Lax-allowing-unsafe" mode
 necessarily provides fewer protections against CSRF. Ultimately, the provision
 of such an enforcement mode should be seen as a temporary, transitional measure
