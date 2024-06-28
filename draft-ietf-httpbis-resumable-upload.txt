@@ -90,14 +90,17 @@ Table of Contents
      8.1.  Upload-Offset
      8.2.  Upload-Complete
    9.  Media Type application/partial-upload
-   10. Redirection
-   11. Transfer and Content Codings
-   12. Subsequent Resources
-   13. Security Considerations
-   14. IANA Considerations
-   15. References
-     15.1.  Normative References
-     15.2.  Informative References
+   10. Problem Types
+     10.1.  Mismatching Offset
+     10.2.  Completed Upload
+   11. Redirection
+   12. Transfer and Content Codings
+   13. Subsequent Resources
+   14. Security Considerations
+   15. IANA Considerations
+   16. References
+     16.1.  Normative References
+     16.2.  Informative References
    Appendix A.  Informational Response
    Appendix B.  Feature Detection
    Appendix C.  Upload Metadata
@@ -617,7 +620,9 @@ Table of Contents
    match the offset provided by the immediate previous offset retrieval
    (Section 5), or the end offset of the immediate previous incomplete
    successful transfer, the server MUST respond with a 409 (Conflict)
-   status code.
+   status code.  The server MAY use the problem type [PROBLEM] of
+   "https://iana.org/assignments/http-problem-types#mismatching-upload-
+   offset" in the response; see Section 10.1.
 
    The server applies the patch document of the application/partial-
    upload media type by appending the request content to the targeted
@@ -759,7 +764,54 @@ Table of Contents
    of the block might align with the start and end of the file that
    should be uploaded, but they are not required to be aligned.
 
-10.  Redirection
+10.  Problem Types
+
+10.1.  Mismatching Offset
+
+   This section defines the "https://iana.org/assignments/http-problem-
+   types#mismatching-upload-offset" problem type [PROBLEM].  A server
+   MAY use this problem type when responding to an upload append request
+   (Section 6) to indicate that the Upload-Offset header field in the
+   request does not match the upload resource's offset.
+
+   Two problem type extension members are defined: the expected-offset
+   and provided-offset members.  A response using this problem type
+   SHOULD populate both members, with the value of expected-offset taken
+   from the upload resource and the value of provided-offset taken from
+   the upload append request.
+
+   The following example shows an example response, where the resource's
+   offset was 100, but the client attempted to append at offset 200:
+
+   HTTP/1.1 409 Conflict
+   Content-Type: application/problem+json
+
+   {
+     "type":"https://iana.org/assignments/http-problem-types#mismatching-upload-offset",
+     "title": "offset from request does not match offset of resource",
+     "expected-offset": 100,
+     "provided-offset": 200
+   }
+
+10.2.  Completed Upload
+
+   This section defines the "https://iana.org/assignments/http-problem-
+   types#completed-upload" problem type [PROBLEM].  A server MAY use
+   this problem type when responding to an upload append request
+   (Section 6) to indicate that the upload has already been completed
+   and cannot be modified.
+
+   The following example shows an example response:
+
+   HTTP/1.1 400 Bad Request
+   Content-Type: application/problem+json
+
+   {
+     "type":"https://iana.org/assignments/http-problem-types#completed-upload",
+     "title": "upload is already completed"
+   }
+
+11.  Redirection
 
    The 301 (Moved Permanently) and 302 (Found) status codes MUST NOT be
    used in offset retrieval (Section 5) and upload cancellation
@@ -770,7 +822,7 @@ Table of Contents
    request, it MAY apply the redirection directly in an immediate
    subsequent upload append (Section 6).
 
-11.  Transfer and Content Codings
+12.  Transfer and Content Codings
 
    A message might have a content coding, indicated by the Content-
    Encoding header field, and/or a transfer coding, indicated by the
@@ -783,7 +835,7 @@ Table of Contents
    offset is counted after the content's transfer coding is reversed but
    before the content coding is reversed.
 
-12.  Subsequent Resources
+13.  Subsequent Resources
 
    The server might process the uploaded data and make its results
    available in another resource during or after the upload.  This
@@ -798,7 +850,7 @@ Table of Contents
    resource could allow the client to fetch information extracted from
    the uploaded data.
 
-13.  Security Considerations
+14.  Security Considerations
 
    The upload resource URL is the identifier used for modifying the
    upload.  Without further protection of this URL, an attacker may
@@ -832,7 +884,7 @@ Table of Contents
    allowed to have, and restricting the length of time an upload
    resource can exist.
 
-14.  IANA Considerations
+15.  IANA Considerations
 
    IANA is asked to register the following entries in the "Hypertext
    Transfer Protocol (HTTP) Field Name Registry":
@@ -869,7 +921,7 @@ Table of Contents
 
    Encoding considerations:  binary
 
-   Security considerations:  see Section 13 of this document
+   Security considerations:  see Section 14 of this document
 
    Interoperability considerations:  N/A
 
@@ -904,9 +956,33 @@ Table of Contents
 
    Change controller:  IETF
 
-15.  References
+   IANA is asked to register the following entry in the "HTTP Problem
+   Types" registry:
 
-15.1.  Normative References
+   Type URI:  https://iana.org/assignments/http-problem-
+      types#mismatching-upload-offset Title:
+
+      Mismatching Upload Offset Recommended HTTP status code:
+
+      409 Reference:
+
+      This document
+
+   IANA is asked to register the following entry in the "HTTP Problem
+   Types" registry:
+
+   Type URI:  https://iana.org/assignments/http-problem-types#completed-
+      upload Title:
+
+      Upload Is Completed Recommended HTTP status code:
+
+      400 Reference:
+
+      This document
+
+16.  References
+
+16.1.  Normative References
 
    [HTTP]     Fielding, R., Ed., Nottingham, M., Ed., and J. Reschke,
               Ed., "HTTP Semantics", STD 97, RFC 9110,
@@ -916,6 +992,10 @@ Table of Contents
    [HTTP/1.1] Fielding, R., Ed., Nottingham, M., Ed., and J. Reschke,
               Ed., "HTTP/1.1", STD 99, RFC 9112, DOI 10.17487/RFC9112,
               June 2022, <https://www.rfc-editor.org/rfc/rfc9112>.
+
+   [PROBLEM]  Nottingham, M., Wilde, E., and S. Dalal, "Problem Details
+              for HTTP APIs", RFC 9457, DOI 10.17487/RFC9457, July 2023,
+              <https://www.rfc-editor.org/rfc/rfc9457>.
 
    [RFC2119]  Bradner, S., "Key words for use in RFCs to Indicate
               Requirement Levels", BCP 14, RFC 2119,
@@ -940,7 +1020,7 @@ Table of Contents
               HTTP", RFC 8941, DOI 10.17487/RFC8941, February 2021,
               <https://www.rfc-editor.org/rfc/rfc8941>.
 
-15.2.  Informative References
+16.2.  Informative References
 
    [SLOWLORIS]
               "RSnake" Hansen, R., "Welcome to Slowloris - the low
@@ -1121,6 +1201,8 @@ Since draft-ietf-httpbis-resumable-upload-03
    *  Require application/partial-upload for appending to uploads.
 
    *  Explain handling of content and transfer codings.
+
+   *  Add problem types for mismatching offsets and completed uploads.
 
 Since draft-ietf-httpbis-resumable-upload-02
 
